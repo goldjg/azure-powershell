@@ -6,6 +6,7 @@ param(
 )
 function Install-Preview-PowerShell {
   $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
+  $null = New-Item -ItemType Directory -Path $tempDir -Force -ErrorAction SilentlyContinue
   $metadata = Invoke-RestMethod https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json
   $release = $metadata.PreviewReleaseTag -replace '^v'
   $packageName = "PowerShell-${release}-win-x64.msi"
