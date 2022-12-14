@@ -4,6 +4,25 @@ param(
   [Parameter(Mandatory = $false, Position = 0)]
   $requiredPsVersion
 )
+function Install-Preview-PowerShell {
+  $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
+  $metadata = Invoke-RestMethod https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json
+  $release = $metadata.PreviewReleaseTag -replace '^v'
+  $packageName = "PowerShell-${release}-win-x64.msi"
+  $downloadURL = "https://github.com/PowerShell/PowerShell/releases/download/v${release}/${packageName}"
+  Write-Verbose "About to download package from '$downloadURL'" -Verbose
+  $packagePath = Join-Path -Path $tempDir -ChildPath $packageName
+  $ArgumentList=@("/i", $packagePath, "/quiet")
+  
+  try {
+    Invoke-WebRequest -Uri $downloadURL -OutFile $packagePath
+  } finally {
+      if (!$PSVersionTable.ContainsKey('PSEdition') -or $PSVersionTable.PSEdition -eq "Desktop") {
+          $ProgressPreference = $oldProgressPreference
+      }
+  }
+  Start-Process -FilePath msiexec -ArgumentList $ArgumentList -PassThru
+}
 
 function Install-PowerShell {
   param (
@@ -21,7 +40,11 @@ function Install-PowerShell {
     dotnet new tool-manifest --force
     if('latest' -eq $requiredPsVersion){
       dotnet tool install PowerShell
-    }else {
+    }
+    if('preview' -eq $requiredPsVersion){
+      Install-Preview-PowerShell
+    }
+    else {
       dotnet tool install PowerShell --version $requiredPsVersion 
     }
     dotnet tool list
