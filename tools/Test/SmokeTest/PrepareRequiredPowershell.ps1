@@ -60,7 +60,11 @@ function Install-PowerShell {
   }else{
     $command = "Install-Module -Repository PSGallery -Name PowerShellGet -Scope CurrentUser -AllowClobber -Force `
     Exit"
-    dotnet tool run pwsh -c $command
+    if('preview' -eq $requiredPsVersion){
+      pwsh-preview -c $command
+    }else{
+      dotnet tool run pwsh -c $command
+    }
   }
 }
 

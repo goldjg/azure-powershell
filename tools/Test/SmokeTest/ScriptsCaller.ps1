@@ -15,8 +15,15 @@ $script += " -ErrorAction Stop"
 if($requiredPsVersion -eq $windowsPowershellVersion){
     Invoke-Command -ScriptBlock { param ($command) &"powershell.exe" -Command $command } -ArgumentList $script 
 }else{
-    $command = "`$PSVersionTable `
+    if($requiredPsVersion -eq "preview"){
+      $command = "`$PSVersionTable `
                 $script `
                 Exit"
-    dotnet tool run pwsh -c $command
+      pwsh-preview -c $command
+    }else{
+      $command = "`$PSVersionTable `
+                $script `
+                Exit"
+      dotnet tool run pwsh -c $command
+    }
 }
