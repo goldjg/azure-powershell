@@ -19,7 +19,7 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
       $command = "`$PSVersionTable `
                 $script `
                 Exit"
-      pwsh-preview -c $command
+      pwsh -c $command
     }else{
       $command = "`$PSVersionTable `
                 $script `
