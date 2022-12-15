@@ -40,6 +40,9 @@ parameters:
   type: string
   default: 7.0.x
 
+variables:
+  EnableTestCoverage: true
+
 trigger:
 - none
 

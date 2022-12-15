@@ -16,7 +16,7 @@ using Microsoft.WindowsAzure.Commands.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -48,11 +48,11 @@ namespace Microsoft.Azure.Commands.Common.Authentication
 
         static TestCoverage()
         {
-
             var repoRootPath = ProbeRepoDirectory();
             if (!string.IsNullOrEmpty(repoRootPath))
             {
                 s_testCoverageRootPath = Path.Combine(repoRootPath, "artifacts", "TestCoverageAnalysis", "Raw");
+                Console.WriteLine($"Test coverage root path: {s_testCoverageRootPath}");
                 DirectoryInfo rawDir = new DirectoryInfo(s_testCoverageRootPath);
                 if (!rawDir.Exists)
                 {
@@ -63,11 +63,12 @@ namespace Microsoft.Azure.Commands.Common.Authentication
 
         private static string ProbeRepoDirectory()
         {
-            string directoryPath = "..";
-            while (Directory.Exists(directoryPath) && (!Directory.Exists(Path.Combine(directoryPath, "src")) || !Directory.Exists(Path.Combine(directoryPath, "artifacts"))))
+            string directoryPath = Assembly.GetExecutingAssembly().Location;
+            Console.WriteLine($"Executing assembly location: {directoryPath}");
+            do
             {
                 directoryPath = Path.Combine(directoryPath, "..");
-            }
+            } while (Directory.Exists(directoryPath) && (!Directory.Exists(Path.Combine(directoryPath, "src")) || !Directory.Exists(Path.Combine(directoryPath, "artifacts"))));
 
             string result = Directory.Exists(directoryPath) ? Path.GetFullPath(directoryPath) : null;
             return result;
@@ -104,13 +105,14 @@ namespace Microsoft.Azure.Commands.Common.Authentication
 #if DEBUG || TESTCOVERAGE
             string moduleName = qos.ModuleName;
             string commandName = qos.CommandName;
-            string sourceScript = qos.SourceScript;
+            string sourceScriptPath = qos.SourceScript;
+            string sourceScriptName = Path.GetFileName(sourceScriptPath);
 
-            if (string.IsNullOrEmpty(moduleName) || string.IsNullOrEmpty(commandName) || ExcludedSource.Contains(sourceScript))
+            if (string.IsNullOrEmpty(moduleName) || string.IsNullOrEmpty(commandName) || string.IsNullOrEmpty(sourceScriptName) || ExcludedSource.Contains(sourceScriptName))
                 return;
 
-            var pattern = @"\\(?:artifacts\\Debug|src)\\(?:Az\.)?(?<ModuleName>[a-zA-Z]+)\\";
-            var match = Regex.Match(sourceScript, pattern, RegexOptions.IgnoreCase);
+            var pattern = @"[\\|/](?:artifacts[\\|/]Debug|src)[\\|/](?:Az\.)?(?<ModuleName>[a-zA-Z]+)[\\|/]";
+            var match = Regex.Match(sourceScriptPath, pattern, RegexOptions.IgnoreCase);
             var testingModuleName = $"Az.{match.Groups["ModuleName"].Value}";
             if (string.Compare(testingModuleName, moduleName, true) != 0)
                 return;
@@ -128,7 +130,7 @@ namespace Microsoft.Azure.Commands.Common.Authentication
                 }
 
                 csvData.AppendLine();
-                var csvItem = GenerateCsvItem(commandName, qos.ParameterSetName, qos.Parameters, Path.GetFileName(sourceScript), qos.ScriptLineNumber, qos.IsSuccess);
+                var csvItem = GenerateCsvItem(commandName, qos.ParameterSetName, qos.Parameters, Path.GetFileName(sourceScriptName), qos.ScriptLineNumber, qos.IsSuccess);
                 csvData.Append(csvItem);
 
                 File.AppendAllText(csvFilePath, csvData.ToString());

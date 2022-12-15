@@ -34,28 +34,36 @@ param (
 
 Import-Module "./tools/TestFx/Utilities/KustoUtility.psd1" -Force
 
-$liveTestResults = Get-ChildItem -Path "./artifacts/LiveTestAnalysis/Raw" -Filter *.csv -File | Select-Object -ExpandProperty FullName
-
-Import-KustoDataFromCsv `
-    -ServicePrincipalTenantId $ServicePrincipalTenantId `
-    -ServicePrincipalId $ServicePrincipalId `
-    -ServicePrincipalSecret $ServicePrincipalSecret `
-    -ClusterName $ClusterName `
-    -ClusterRegion $ClusterRegion `
-    -DatabaseName $DatabaseName `
-    -TableName $LiveTestTableName `
-    -CsvFile $liveTestResults
-
-$liveTestCoverageResults = Get-ChildItem -Path "./artifacts/TestCoverageAnalysis/Raw" -Filter *.csv -File | Select-Object -ExpandProperty FullName
-if ($liveTestCoverageResults -is [string]) {
-    $liveTestCoverageResults = @($liveTestCoverageResults)
+$liveTestResultsDirectory = "./artifacts/LiveTestAnalysis/Raw"
+if (Test-Path -LiteralPath $liveTestResultsDirectory) {
+    $liveTestResults = Get-ChildItem -Path $liveTestResultsDirectory -Filter "*.csv" -File | Select-Object -ExpandProperty FullName
+    Import-KustoDataFromCsv `
+        -ServicePrincipalTenantId $ServicePrincipalTenantId `
+        -ServicePrincipalId $ServicePrincipalId `
+        -ServicePrincipalSecret $ServicePrincipalSecret `
+        -ClusterName $ClusterName `
+        -ClusterRegion $ClusterRegion `
+        -DatabaseName $DatabaseName `
+        -TableName $LiveTestTableName `
+        -CsvFile $liveTestResults
 }
-Import-KustoDataFromCsv `
-    -ServicePrincipalTenantId $ServicePrincipalTenantId `
-    -ServicePrincipalId $ServicePrincipalId `
-    -ServicePrincipalSecret $ServicePrincipalSecret `
-    -ClusterName $ClusterName `
-    -ClusterRegion $ClusterRegion `
-    -DatabaseName $DatabaseName `
-    -TableName $TestCoverageTableName `
-    -CsvFile $liveTestCoverageResults
+else {
+    Write-Warning "No live test data generated."
+}
+
+$testCoverageResultsDirectory = "./artifacts/TestCoverageAnalysis/Raw"
+if (Test-Path -LiteralPath $testCoverageResultsDirectory) {
+    $testCoverageResults = Get-ChildItem -Path $testCoverageResultsDirectory -Filter *.csv -File | Select-Object -ExpandProperty FullName
+    Import-KustoDataFromCsv `
+        -ServicePrincipalTenantId $ServicePrincipalTenantId `
+        -ServicePrincipalId $ServicePrincipalId `
+        -ServicePrincipalSecret $ServicePrincipalSecret `
+        -ClusterName $ClusterName `
+        -ClusterRegion $ClusterRegion `
+        -DatabaseName $DatabaseName `
+        -TableName $TestCoverageTableName `
+        -CsvFile $testCoverageResults
+}
+else {
+    Write-Warning "No test coverage data generated."
+}
