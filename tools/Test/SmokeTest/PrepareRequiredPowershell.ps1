@@ -51,7 +51,7 @@ function Install-Preview-PowerShell {
         default { throw "PowerShell package for OS architecture '$_' is not supported." }
     }
   }
-  
+
   $null = New-Item -ItemType Directory -Path $TempDir -Force -ErrorAction SilentlyContinue
   $metadata = Invoke-RestMethod https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json
   $release = $metadata.PreviewReleaseTag -replace '^v'
@@ -78,6 +78,7 @@ function Install-Preview-PowerShell {
 
   $contentPath= Join-Path -Path $TempDir -ChildPath "new"
   $null = New-Item -ItemType Directory -Path $contentPath -ErrorAction SilentlyContinue
+  
   if ($IsWinEnv){
     Expand-ArchiveInternal -Path $packagePath -DestinationPath $contentPath
   }else{

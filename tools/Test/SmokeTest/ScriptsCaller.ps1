@@ -8,6 +8,16 @@ param(
   $script
 )
 
+if (-not $Destination) {
+  if ($IsWinEnv) {
+      $Destination = "$env:LOCALAPPDATA\Microsoft\powershell"
+  } else {
+      $Destination = "~/.powershell"
+  }
+}
+
+$DestinationPreview = Join-Path -Path $Destination -ChildPath "new"
+
 Write-Host "Required Version:", $requiredPsVersion, ", script:", $script
 $windowsPowershellVersion = "5.1.14"
 
