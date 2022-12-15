@@ -4,25 +4,88 @@ param(
   [Parameter(Mandatory = $false, Position = 0)]
   $requiredPsVersion
 )
+
+$IsLinuxEnv = (Get-Variable -Name "IsLinux" -ErrorAction Ignore) -and $IsLinux
+$IsMacOSEnv = (Get-Variable -Name "IsMacOS" -ErrorAction Ignore) -and $IsMacOS
+$IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
+
+if (-not $Destination) {
+    if ($IsWinEnv) {
+        $Destination = "$env:LOCALAPPDATA\Microsoft\powershell"
+    } else {
+        $Destination = "~/.powershell"
+    }
+}
+
+$DestinationPreview = Join-Path -Path $Destination -ChildPath "new"
+$TempDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
+function Expand-ArchiveInternal {
+    [CmdletBinding()]
+    param(
+        $Path,
+        $DestinationPath
+    )
+
+    if((Get-Command -Name Expand-Archive -ErrorAction Ignore))
+    {
+        Expand-Archive -Path $Path -DestinationPath $DestinationPath
+    }
+    else
+    {
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        $resolvedPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Path)
+        $resolvedDestinationPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($DestinationPath)
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($resolvedPath,$resolvedDestinationPath)
+    }
+}
+
 function Install-Preview-PowerShell {
-  $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
-  $null = New-Item -ItemType Directory -Path $tempDir -Force -ErrorAction SilentlyContinue
+  if (-not $IsWinEnv) {
+    $architecture = "x64"
+  } elseif ($(Get-ComputerInfo -Property OsArchitecture).OsArchitecture -eq "ARM 64-bit Processor") {
+    $architecture = "arm64"
+  } else {
+    switch ($env:PROCESSOR_ARCHITECTURE) {
+        "AMD64" { $architecture = "x64" }
+        "x86" { $architecture = "x86" }
+        default { throw "PowerShell package for OS architecture '$_' is not supported." }
+    }
+  }
+  
+  $null = New-Item -ItemType Directory -Path $TempDir -Force -ErrorAction SilentlyContinue
   $metadata = Invoke-RestMethod https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json
   $release = $metadata.PreviewReleaseTag -replace '^v'
-  $packageName = "PowerShell-${release}-win-x64.msi"
+
+  if ($IsWinEnv) {
+    $packageName = "PowerShell-${release}-win-${architecture}.zip"
+  } elseif ($IsLinuxEnv) {
+      $packageName = "powershell-${release}-linux-${architecture}.tar.gz"
+  } elseif ($IsMacOSEnv) {
+      $packageName = "powershell-${release}-osx-${architecture}.tar.gz"
+  }
+
   $downloadURL = "https://github.com/PowerShell/PowerShell/releases/download/v${release}/${packageName}"
   Write-Verbose "About to download package from '$downloadURL'" -Verbose
-  $packagePath = Join-Path -Path $tempDir -ChildPath $packageName
-  $ArgumentList=@("/i", $packagePath, "/quiet")
-  
+  $packagePath = Join-Path -Path $TempDir -ChildPath $packageName
+
   try {
     Invoke-WebRequest -Uri $downloadURL -OutFile $packagePath
   } finally {
-      if (!$PSVersionTable.ContainsKey('PSEdition') -or $PSVersionTable.PSEdition -eq "Desktop") {
-          $ProgressPreference = $oldProgressPreference
-      }
+    if (!$PSVersionTable.ContainsKey('PSEdition') -or $PSVersionTable.PSEdition -eq "Desktop") {
+      $ProgressPreference = $oldProgressPreference
+    }
   }
-  Start-Process -FilePath msiexec -ArgumentList $ArgumentList -PassThru
+
+  $contentPath= Join-Path -Path $TempDir -ChildPath "new"
+  $null = New-Item -ItemType Directory -Path $contentPath -ErrorAction SilentlyContinue
+  if ($IsWinEnv){
+    Expand-ArchiveInternal -Path $packagePath -DestinationPath $contentPath
+  }else{
+    tar zxf $packagePath -C $contentPath
+  }
+
+  $null = New-Item -Path (Split-Path -Path $Destination -Parent) -ItemType Directory -ErrorAction SilentlyContinue
+  Move-Item -Path $contentPath -Destination $Destination -Force 
 }
 
 function Install-PowerShell {
@@ -61,7 +124,9 @@ function Install-PowerShell {
     $command = "Install-Module -Repository PSGallery -Name PowerShellGet -Scope CurrentUser -AllowClobber -Force `
     Exit"
     if('preview' -eq $requiredPsVersion){
+      $env:Path=$DestinationPreview
       pwsh -c $command
+      Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }else{
       dotnet tool run pwsh -c $command
     }
