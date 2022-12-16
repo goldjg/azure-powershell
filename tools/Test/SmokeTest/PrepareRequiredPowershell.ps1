@@ -88,7 +88,7 @@ function Install-Preview-PowerShell {
 
   $null = New-Item -Path (Split-Path -Path $Destination -Parent) -ItemType Directory -ErrorAction SilentlyContinue
   Move-Item -Path $contentPath -Destination $Destination -Force 
-  ls Destination
+  ls $Destination
 }
 
 function Install-PowerShell {
@@ -132,7 +132,6 @@ function Install-PowerShell {
       cd $Destination
       ./pwsh -c $command
       Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
-      cd $Current
     }else{
       dotnet tool run pwsh -c $command
     }
