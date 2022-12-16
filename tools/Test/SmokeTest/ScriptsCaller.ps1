@@ -10,7 +10,7 @@ param(
 
 if (-not $DestinationPowerShell) {
   if ($IsWinEnv) {
-      $DestinationPowerShell = "$PSScriptRoot\Microsoft\powershell"
+      $DestinationPowerShell = ".\Microsoft\powershell"
   } else {
       $DestinationPowerShell = "~/.powershell"
   }

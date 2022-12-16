@@ -11,7 +11,7 @@ $IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
 
 if (-not $Destination) {
     if ($IsWinEnv) {
-        $Destination = "$PSScriptRoot\Microsoft\powershell"
+        $Destination = ".\Microsoft\powershell"
     } else {
         $Destination = "~/.powershell"
     }
