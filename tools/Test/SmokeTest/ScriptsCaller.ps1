@@ -8,6 +8,10 @@ param(
   $script
 )
 
+$IsLinuxEnv = (Get-Variable -Name "IsLinux" -ErrorAction Ignore) -and $IsLinux
+$IsMacOSEnv = (Get-Variable -Name "IsMacOS" -ErrorAction Ignore) -and $IsMacOS
+$IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
+
 if (-not $DestinationPowerShell) {
   if ($IsWinEnv) {
       $DestinationPowerShell = "D:\a\_work\1\s\tools\Test\SmokeTest\Microsoft\powershell"
