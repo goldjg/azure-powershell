@@ -10,7 +10,7 @@ param(
 
 if (-not $DestinationPowerShell) {
   if ($IsWinEnv) {
-      $DestinationPowerShell = ".\Microsoft\powershell"
+      $DestinationPowerShell = "D:\a\_work\1\s\tools\Test\SmokeTest\Microsoft\powershell"
   } else {
       $DestinationPowerShell = "~/.powershell"
   }
