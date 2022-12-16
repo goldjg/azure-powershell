@@ -84,12 +84,15 @@ function Install-Preview-PowerShell {
 
   if ($IsWinEnv){
     Expand-ArchiveInternal -Path $packagePath -DestinationPath $contentPath
+    ls $contentPath
   }else{
     tar zxf $packagePath -C $contentPath
   }
 
   $null = New-Item -Path (Split-Path -Path $Destination -Parent) -ItemType Directory -ErrorAction SilentlyContinue
   Move-Item -Path $contentPath -Destination $Destination -Force 
+  ls $Destination
+  ls $DestinationPreview
 }
 
 function Install-PowerShell {
