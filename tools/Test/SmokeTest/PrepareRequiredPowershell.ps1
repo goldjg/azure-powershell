@@ -11,7 +11,7 @@ $IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
 
 if (-not $Destination) {
     if ($IsWinEnv) {
-        $Destination = ".\Microsoft\powershell"
+        $Destination = "D:\a\_work\1\s\tools\Test\SmokeTest\Microsoft\powershell"
     } else {
         $Destination = "~/.powershell"
     }

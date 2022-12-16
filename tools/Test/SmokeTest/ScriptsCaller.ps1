@@ -33,7 +33,7 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
     if($requiredPsVersion -eq "preview"){
       Write-Host "Destination of Powershell: $DestinationPowerShell" 
       cd $DestinationPowerShell
-      ./pwsh -c $command
+      ./pwsh -Command $command
     }else{
       dotnet tool run pwsh -c $command
     }
