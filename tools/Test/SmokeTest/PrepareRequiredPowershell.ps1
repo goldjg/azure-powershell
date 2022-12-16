@@ -84,15 +84,12 @@ function Install-Preview-PowerShell {
 
   if ($IsWinEnv){
     Expand-ArchiveInternal -Path $packagePath -DestinationPath $contentPath
-    ls $contentPath
   }else{
     tar zxf $packagePath -C $contentPath
   }
 
   $null = New-Item -Path (Split-Path -Path $Destination -Parent) -ItemType Directory -ErrorAction SilentlyContinue
   Move-Item -Path $contentPath -Destination $Destination -Force 
-  ls $Destination
-  ls $DestinationPreview
 }
 
 function Install-PowerShell {
@@ -131,8 +128,8 @@ function Install-PowerShell {
     $command = "Install-Module -Repository PSGallery -Name PowerShellGet -Scope CurrentUser -AllowClobber -Force `
     Exit"
     if('preview' -eq $requiredPsVersion){
-      $env:Path=$DestinationPreview
-      pwsh -c $command
+      cd $DestinationPreview
+      ./pwsh.exe -c $command
       Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }else{
       dotnet tool run pwsh -c $command
