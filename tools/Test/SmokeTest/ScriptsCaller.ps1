@@ -16,8 +16,6 @@ if (-not $Destination) {
   }
 }
 
-$DestinationPreview = Join-Path -Path $Destination -ChildPath "new"
-
 Write-Host "Required Version:", $requiredPsVersion, ", script:", $script
 $windowsPowershellVersion = "5.1.14"
 
@@ -29,7 +27,7 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   $script `
                   Exit"
     if($requiredPsVersion -eq "preview"){
-      $env:Path=$DestinationPreview
+      $env:Path=$Destination
       pwsh -c $command
     }else{
       dotnet tool run pwsh -c $command

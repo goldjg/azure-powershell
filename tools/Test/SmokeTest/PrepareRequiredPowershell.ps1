@@ -19,8 +19,6 @@ if (-not $Destination) {
 
 Write-Verbose "The Destination is '$Destination'" -Verbose
 
-$DestinationPreview = Join-Path -Path $Destination -ChildPath "new"
-Write-Verbose "The DestinationPreview is '$DestinationPreview'" -Verbose
 $TempDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
 function Expand-ArchiveInternal {
     [CmdletBinding()]
@@ -128,7 +126,7 @@ function Install-PowerShell {
     $command = "Install-Module -Repository PSGallery -Name PowerShellGet -Scope CurrentUser -AllowClobber -Force `
     Exit"
     if('preview' -eq $requiredPsVersion){
-      cd $DestinationPreview
+      cd $Destination
       ./pwsh.exe -c $command
       Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }else{
