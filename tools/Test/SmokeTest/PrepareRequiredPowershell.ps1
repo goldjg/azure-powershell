@@ -9,11 +9,13 @@ $IsLinuxEnv = (Get-Variable -Name "IsLinux" -ErrorAction Ignore) -and $IsLinux
 $IsMacOSEnv = (Get-Variable -Name "IsMacOS" -ErrorAction Ignore) -and $IsMacOS
 $IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
 
-if (-not $Destination) {
+if (-not $Destination){
     if ($IsWinEnv) {
         $Destination = "D:\a\_work\1\s"
-    } else {
-        $Destination = "~/."
+    }elseif($IsLinuxEnv){
+        $Destination = "/mnt/vss/_work/1/s"
+    }elseif($IsMacOSEnv){
+        $Destination = "/Users/runner/work/1/s"
     }
 }
 
@@ -77,17 +79,13 @@ function Install-Preview-PowerShell {
     }
   }
 
-  $contentPath= Join-Path -Path $TempDir -ChildPath "new"
-  $null = New-Item -ItemType Directory -Path $contentPath -ErrorAction SilentlyContinue
-
   if ($IsWinEnv){
-    Expand-ArchiveInternal -Path $packagePath -DestinationPath $contentPath
+    Expand-ArchiveInternal -Path $packagePath -DestinationPath $Destination
   }else{
-    tar zxf $packagePath -C $contentPath
+    tar zxf $packagePath -C $Destination
   }
 
   $null = New-Item -Path (Split-Path -Path $Destination -Parent) -ItemType Directory -ErrorAction SilentlyContinue
-  Move-Item -Path $contentPath -Destination $Destination -Force 
   ls $Destination
 }
 
