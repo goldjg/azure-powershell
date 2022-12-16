@@ -11,13 +11,16 @@ $IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
 
 if (-not $Destination) {
     if ($IsWinEnv) {
-        $Destination = "$env:LOCALAPPDATA\Microsoft\powershell"
+        $Destination = "$PSScriptRoot\Microsoft\powershell"
     } else {
         $Destination = "~/.powershell"
     }
 }
 
+Write-Verbose "The Destination is '$Destination'" -Verbose
+
 $DestinationPreview = Join-Path -Path $Destination -ChildPath "new"
+Write-Verbose "The DestinationPreview is '$DestinationPreview'" -Verbose
 $TempDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
 function Expand-ArchiveInternal {
     [CmdletBinding()]
@@ -78,7 +81,7 @@ function Install-Preview-PowerShell {
 
   $contentPath= Join-Path -Path $TempDir -ChildPath "new"
   $null = New-Item -ItemType Directory -Path $contentPath -ErrorAction SilentlyContinue
-  
+
   if ($IsWinEnv){
     Expand-ArchiveInternal -Path $packagePath -DestinationPath $contentPath
   }else{
@@ -139,10 +142,10 @@ function Install-PowerShell {
 
 # Remove Az.* modules
 . "$PSScriptRoot/Common.ps1"
-Remove-AzModules
+# Remove-AzModules
 
 # If all images update AzureRM to Az, below codes should be deleted.
-# Remove AzureRM.* modules
+Remove AzureRM.* modules
 Remove-AzModules "AzureRM"
 # If all images update AzureRM to Az, above codes should be deleted.
 
