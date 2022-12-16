@@ -14,9 +14,11 @@ $IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
 
 if (-not $DestinationPowerShell) {
   if ($IsWinEnv) {
-      $DestinationPowerShell = "D:\a\_work\1\s" 
-  } else {
-      $DestinationPowerShell = "~/."
+    $DestinationPowerShell = "D:\a\_work\1\s"
+  }elseif($IsLinuxEnv){
+    $DestinationPowerShell = "/mnt/vss/_work/1/s"
+  }elseif($IsMacOSEnv){
+    $DestinationPowerShell = "/Users/runner/work/1/s"
   }
 }
 
@@ -32,10 +34,8 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   Exit"
     if($requiredPsVersion -eq "preview"){
       $Current = Get-Location
-      Write-Host "Destination of Powershell: $DestinationPowerShell, Current: $Current" 
-      cd $DestinationPowerShell
+      Write-Host "Destination of Powershell: $DestinationPowerShell, Current: $Current"
       ./pwsh -Command $command
-      cd $Current
     }else{
       dotnet tool run pwsh -c $command
     }
