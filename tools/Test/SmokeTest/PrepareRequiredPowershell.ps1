@@ -11,9 +11,9 @@ $IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
 
 if (-not $Destination) {
     if ($IsWinEnv) {
-        $Destination = "D:\a\_work\1\s\tools\Test\SmokeTest"
+        $Destination = "D:\a\_work\1\s"
     } else {
-        $Destination = "~/.powershell"
+        $Destination = "~/."
     }
 }
 
@@ -88,6 +88,7 @@ function Install-Preview-PowerShell {
 
   $null = New-Item -Path (Split-Path -Path $Destination -Parent) -ItemType Directory -ErrorAction SilentlyContinue
   Move-Item -Path $contentPath -Destination $Destination -Force 
+  ls Destination
 }
 
 function Install-PowerShell {
