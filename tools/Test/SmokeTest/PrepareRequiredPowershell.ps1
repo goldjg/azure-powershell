@@ -11,7 +11,7 @@ $IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
 
 if (-not $Destination) {
     if ($IsWinEnv) {
-        $Destination = "D:\a\_work\1\s\tools\Test\SmokeTest\Microsoft\powershell"
+        $Destination = "D:\a\_work\1\s\tools\Test\SmokeTest"
     } else {
         $Destination = "~/.powershell"
     }
@@ -127,6 +127,7 @@ function Install-PowerShell {
     Exit"
     if('preview' -eq $requiredPsVersion){
       $Current = Get-Location
+      Write-Host "Current Location: $Current"
       cd $Destination
       ./pwsh -c $command
       Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue

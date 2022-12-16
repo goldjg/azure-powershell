@@ -14,7 +14,7 @@ $IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
 
 if (-not $DestinationPowerShell) {
   if ($IsWinEnv) {
-      $DestinationPowerShell = "D:\a\_work\1\s\tools\Test\SmokeTest\Microsoft\powershell"
+      $DestinationPowerShell = "D:\a\_work\1\s\tools\Test\SmokeTest" 
   } else {
       $DestinationPowerShell = "~/.powershell"
   }
@@ -32,7 +32,7 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   Exit"
     if($requiredPsVersion -eq "preview"){
       $Current = Get-Location
-      Write-Host "Destination of Powershell: $DestinationPowerShell" 
+      Write-Host "Destination of Powershell: $DestinationPowerShell, Current: $Current" 
       cd $DestinationPowerShell
       ./pwsh -Command $command
       cd $Current
