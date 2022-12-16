@@ -27,8 +27,8 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   $script `
                   Exit"
     if($requiredPsVersion -eq "preview"){
-      $env:Path=$Destination
-      pwsh -c $command
+      cd $Destination
+      ./pwsh -c $command
     }else{
       dotnet tool run pwsh -c $command
     }
