@@ -8,11 +8,11 @@ param(
   $script
 )
 
-if (-not $Destination) {
+if (-not $DestinationPowerShell) {
   if ($IsWinEnv) {
-      $Destination = "$PSScriptRoot\Microsoft\powershell"
+      $DestinationPowerShell = "$PSScriptRoot\Microsoft\powershell"
   } else {
-      $Destination = "~/.powershell"
+      $DestinationPowerShell = "~/.powershell"
   }
 }
 
@@ -27,7 +27,7 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   $script `
                   Exit"
     if($requiredPsVersion -eq "preview"){
-      cd $Destination
+      cd $DestinationPowerShell
       ./pwsh -c $command
     }else{
       dotnet tool run pwsh -c $command
