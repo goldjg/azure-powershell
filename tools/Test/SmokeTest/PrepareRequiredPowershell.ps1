@@ -145,7 +145,7 @@ function Install-PowerShell {
 # Remove-AzModules
 
 # If all images update AzureRM to Az, below codes should be deleted.
-Remove AzureRM.* modules
+# Remove AzureRM.* modules
 Remove-AzModules "AzureRM"
 # If all images update AzureRM to Az, above codes should be deleted.
 
