@@ -27,6 +27,7 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   $script `
                   Exit"
     if($requiredPsVersion -eq "preview"){
+      Write-Host "Destination of Powershell: $DestinationPowerShell" 
       cd $DestinationPowerShell
       ./pwsh -c $command
     }else{
