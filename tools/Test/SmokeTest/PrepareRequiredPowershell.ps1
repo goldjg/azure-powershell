@@ -126,9 +126,11 @@ function Install-PowerShell {
     $command = "Install-Module -Repository PSGallery -Name PowerShellGet -Scope CurrentUser -AllowClobber -Force `
     Exit"
     if('preview' -eq $requiredPsVersion){
+      $Current = Get-Location
       cd $Destination
       ./pwsh -c $command
       Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+      cd $Current
     }else{
       dotnet tool run pwsh -c $command
     }

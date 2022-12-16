@@ -31,9 +31,11 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   $script `
                   Exit"
     if($requiredPsVersion -eq "preview"){
+      $Current = Get-Location
       Write-Host "Destination of Powershell: $DestinationPowerShell" 
       cd $DestinationPowerShell
       ./pwsh -Command $command
+      cd $Current
     }else{
       dotnet tool run pwsh -c $command
     }
