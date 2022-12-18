@@ -79,15 +79,20 @@ function Install-Preview-PowerShell {
     }
   }
 
+  $contentPath= Join-Path -Path $TempDir -ChildPath "new"
+  $null = New-Item -ItemType Directory -Path $contentPath -ErrorAction SilentlyContinue
+
   if ($IsWinEnv){
     Write-Host "Start expanding Win. $packagePath to $Destination"
     Expand-ArchiveInternal -Path $packagePath -DestinationPath $Destination
     wirte-Host "End unzip."
+    $contentPathContext = $contentPath + "\*"
+    Move-Item -Path $contentPathContext -Destination $Destination -Force
   }else{
     tar zxf $packagePath -C $Destination
   }
 
-  $null = New-Item -Path (Split-Path -Path $Destination -Parent) -ItemType Directory -ErrorAction SilentlyContinue
+  # $null = New-Item -Path (Split-Path -Path $Destination -Parent) -ItemType Directory -ErrorAction SilentlyContinue
   ls $Destination
 }
 
