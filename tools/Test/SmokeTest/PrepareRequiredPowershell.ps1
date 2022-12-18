@@ -80,7 +80,9 @@ function Install-Preview-PowerShell {
   }
 
   if ($IsWinEnv){
+    Write-Host "Start expanding Win. $packagePath to $Destination"
     Expand-ArchiveInternal -Path $packagePath -DestinationPath $Destination
+    wirte-Host "End unzip."
   }else{
     tar zxf $packagePath -C $Destination
   }
@@ -101,18 +103,20 @@ function Install-PowerShell {
   # Prepare powershell
   if ($requiredPsVersion -ne $windowsPowershellVersion) {
     Write-Host "Installing PS $requiredPsVersion..."
-    dotnet --version
-    dotnet new tool-manifest --force
-    if('latest' -eq $requiredPsVersion){
-      dotnet tool install PowerShell
-    }
     if('preview' -eq $requiredPsVersion){
       Install-Preview-PowerShell
+    }else{
+      dotnet --version
+      dotnet new tool-manifest --force
+      if('latest' -eq $requiredPsVersion){
+        dotnet tool install PowerShell
+      }
+      else {
+        dotnet tool install PowerShell --version $requiredPsVersion 
+      }
+      dotnet tool list
     }
-    else {
-      dotnet tool install PowerShell --version $requiredPsVersion 
-    }
-    dotnet tool list
+    
   }else {
     Write-Host "Powershell", $requiredPsVersion, "has been installed"
   }
@@ -125,11 +129,9 @@ function Install-PowerShell {
     $command = "Install-Module -Repository PSGallery -Name PowerShellGet -Scope CurrentUser -AllowClobber -Force `
     Exit"
     if('preview' -eq $requiredPsVersion){
-      $Current = Get-Location
       Write-Host "Current Location: $Current"
-      cd $Destination
       ./pwsh -c $command
-      Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
+      Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
     }else{
       dotnet tool run pwsh -c $command
     }
