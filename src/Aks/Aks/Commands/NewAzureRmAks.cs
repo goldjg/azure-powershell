@@ -137,6 +137,24 @@ namespace Microsoft.Azure.Commands.Aks
         [Parameter(Mandatory = false, HelpMessage = "The resource group containing agent pool.")]
         public string NodeResourceGroup { get; set; }
 
+        [Parameter(Mandatory = false, HelpMessage = "Whether to enable host based OS and data drive")]
+        public SwitchParameter EnableEncryptionAtHost { get; set; }
+
+        [Parameter(Mandatory = false, HelpMessage = "whether to enable UltraSSD")]
+        public SwitchParameter EnableUltraSSD { get; set; }
+
+        [Parameter(Mandatory = false, HelpMessage = "The OS configuration of Linux agent nodes.")]
+        public LinuxOSConfig NodeLinuxOSConfig { get; set; }
+
+        [Parameter(Mandatory = false, HelpMessage = "The Kubelet configuration on the agent pool nodes.")]
+        public KubeletConfig NodeKubeletConfig { get; set; }
+
+        [Parameter(Mandatory = false, HelpMessage = "The maximum number or percentage of nodes that ar surged during upgrade.")]
+        public string NodeMaxSurge { get; set; }
+
+        [Parameter(Mandatory = false, HelpMessage = "The ID for Proximity Placement Group.")]
+        public string PPG { get; set; }
+
         private AcsServicePrincipal acsServicePrincipal;
 
         public override void ExecuteCmdlet()
@@ -483,6 +501,30 @@ namespace Microsoft.Azure.Commands.Aks
             if (this.IsParameterBound(c => c.AvailabilityZone))
             {
                 defaultAgentPoolProfile.AvailabilityZones = AvailabilityZone;
+            }
+            if (EnableEncryptionAtHost.IsPresent)
+            {
+                defaultAgentPoolProfile.EnableEncryptionAtHost = EnableEncryptionAtHost.ToBool();
+            }
+            if (EnableUltraSSD.IsPresent)
+            {
+                defaultAgentPoolProfile.EnableUltraSSD = EnableUltraSSD.ToBool();
+            }
+            if (this.IsParameterBound(c => c.NodeLinuxOSConfig))
+            {
+                defaultAgentPoolProfile.LinuxOSConfig = NodeLinuxOSConfig;
+            }
+            if (this.IsParameterBound(c => c.NodeKubeletConfig))
+            {
+                defaultAgentPoolProfile.KubeletConfig = NodeKubeletConfig;
+            }
+            if (this.IsParameterBound(c => c.NodeMaxSurge))
+            {
+                defaultAgentPoolProfile.UpgradeSettings = new AgentPoolUpgradeSettings(NodeMaxSurge);
+            }
+            if (this.IsParameterBound(c => c.PPG))
+            {
+                defaultAgentPoolProfile.ProximityPlacementGroupID = PPG;
             }
 
             defaultAgentPoolProfile.Mode = NodePoolMode;
