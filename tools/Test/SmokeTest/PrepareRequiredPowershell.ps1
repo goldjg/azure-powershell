@@ -83,9 +83,9 @@ function Install-Preview-PowerShell {
   $null = New-Item -ItemType Directory -Path $contentPath -ErrorAction SilentlyContinue
 
   if ($IsWinEnv){
-    Write-Host "Start expanding Win. $packagePath to $Destination"
+    Write-Host "Start expanding Win. $packagePath to $contentPath"
     Expand-ArchiveInternal -Path $packagePath -DestinationPath $contentPath
-    wirte-Host "End unzip."
+    Write-Host "End unzip."
     $contentPathContext = $contentPath + "\*"
     Move-Item -Path $contentPathContext -Destination $Destination -Force
   }else{
