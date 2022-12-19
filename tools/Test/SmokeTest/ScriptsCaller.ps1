@@ -34,7 +34,7 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   Exit"
     if($requiredPsVersion -eq "preview"){
       $PSNativeCommandArgumentPassing = "Legacy"
-      Write-Host "Destination of Powershell: $DestinationPowerShell, Current: $Current"
+      if (-not $IsWinEnv) { chmod 755 $Destination/pwsh }
       ./pwsh -Command $command
     }else{
       dotnet tool run pwsh -c $command
