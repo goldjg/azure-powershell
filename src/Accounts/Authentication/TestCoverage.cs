@@ -41,23 +41,24 @@ namespace Microsoft.Azure.Commands.Common.Authentication
             "AzureRM.Storage.ps1"
         };
 
-
         private static readonly string s_testCoverageRootPath;
 
         private static readonly ReaderWriterLockSlim s_lock = new ReaderWriterLockSlim();
 
         static TestCoverage()
         {
-            var repoRootPath = ProbeRepoDirectory();
-            if (!string.IsNullOrEmpty(repoRootPath))
+            var rootDirectory = ProbeRepoDirectory();
+            if (string.IsNullOrEmpty(rootDirectory))
             {
-                s_testCoverageRootPath = Path.Combine(repoRootPath, "artifacts", "TestCoverageAnalysis", "Raw");
-                Console.WriteLine($"Test coverage root path: {s_testCoverageRootPath}");
-                DirectoryInfo rawDir = new DirectoryInfo(s_testCoverageRootPath);
-                if (!rawDir.Exists)
-                {
-                    Directory.CreateDirectory(s_testCoverageRootPath);
-                }
+                rootDirectory = GetFallbackDirectory();
+            }
+
+            s_testCoverageRootPath = Path.Combine(rootDirectory, "TestCoverageAnalysis", "Raw");
+            Console.WriteLine($"Test coverage root path: {s_testCoverageRootPath}");
+            DirectoryInfo rawDir = new DirectoryInfo(s_testCoverageRootPath);
+            if (!rawDir.Exists)
+            {
+                Directory.CreateDirectory(s_testCoverageRootPath);
             }
         }
 
@@ -70,8 +71,21 @@ namespace Microsoft.Azure.Commands.Common.Authentication
                 directoryPath = Path.Combine(directoryPath, "..");
             } while (Directory.Exists(directoryPath) && (!Directory.Exists(Path.Combine(directoryPath, "src")) || !Directory.Exists(Path.Combine(directoryPath, "artifacts"))));
 
-            string result = Directory.Exists(directoryPath) ? Path.GetFullPath(directoryPath) : null;
-            return result;
+            if (Directory.Exists(directoryPath))
+                return Path.GetFullPath(Path.Combine(directoryPath, "artifacts"));
+
+            return null;
+        }
+
+        private static string GetFallbackDirectory()
+        {
+            var profilePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var azurePath = Path.Combine(profilePath, ".azure");
+            if (!Directory.Exists(azurePath))
+            {
+                Directory.CreateDirectory(azurePath);
+            }
+            return azurePath;
         }
 
         private string GenerateCsvHeader()
