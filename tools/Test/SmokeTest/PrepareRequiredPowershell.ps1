@@ -9,6 +9,7 @@ $IsLinuxEnv = (Get-Variable -Name "IsLinux" -ErrorAction Ignore) -and $IsLinux
 $IsMacOSEnv = (Get-Variable -Name "IsMacOS" -ErrorAction Ignore) -and $IsMacOS
 $IsWinEnv = !$IsLinuxEnv -and !$IsMacOSEnv
 
+# The PowerShell destination
 if (-not $Destination){
     if ($IsWinEnv) {
         $Destination = "D:\a\_work\1\s"
@@ -19,8 +20,7 @@ if (-not $Destination){
     }
 }
 
-Write-Verbose "The Destination is '$Destination'" -Verbose
-
+# Preview version package download path
 $TempDir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
 function Expand-ArchiveInternal {
     [CmdletBinding()]
@@ -54,7 +54,8 @@ function Install-Preview-PowerShell {
         default { throw "PowerShell package for OS architecture '$_' is not supported." }
     }
   }
-
+  
+  # Obtain current preview version
   $null = New-Item -ItemType Directory -Path $TempDir -Force -ErrorAction SilentlyContinue
   $metadata = Invoke-RestMethod https://raw.githubusercontent.com/PowerShell/PowerShell/master/tools/metadata.json
   $release = $metadata.PreviewReleaseTag -replace '^v'
@@ -67,8 +68,9 @@ function Install-Preview-PowerShell {
       $packageName = "powershell-${release}-osx-${architecture}.tar.gz"
   }
 
+  # Download preview version package
   $downloadURL = "https://github.com/PowerShell/PowerShell/releases/download/v${release}/${packageName}"
-  Write-Verbose "About to download package from '$downloadURL'" -Verbose
+  Write-Verbose "About to download package from '$downloadURL' to a temp path '$TempDir'" -Verbose
   $packagePath = Join-Path -Path $TempDir -ChildPath $packageName
 
   try {
@@ -78,11 +80,12 @@ function Install-Preview-PowerShell {
       $ProgressPreference = $oldProgressPreference
     }
   }
-
-  $contentPath= Join-Path -Path $TempDir -ChildPath "new"
+  # Unzip downloaded preview package
+  $contentPath= Join-Path -Path $TempDir -ChildPath "PowerShellPreview"
   $null = New-Item -ItemType Directory -Path $contentPath -ErrorAction SilentlyContinue
 
   if ($IsWinEnv){
+    # If IsWinEnv, need to extract in the same disk and then move.
     Expand-ArchiveInternal -Path $packagePath -DestinationPath $contentPath
     $contentPathContext = $contentPath + "\*"
     Move-Item -Path $contentPathContext -Destination $Destination -Force
@@ -129,9 +132,8 @@ function Install-PowerShell {
     $command = "Install-Module -Repository PSGallery -Name PowerShellGet -Scope CurrentUser -AllowClobber -Force `
     Exit"
     if('preview' -eq $requiredPsVersion){
+      # Change the mode of 'pwsh' to 'rwxr-xr-x' to allow execution
       if (-not $IsWinEnv) { chmod 755 $Destination/pwsh }
-      $PSNativeCommandArgumentPassing = "Legacy"
-      ./pwsh -c "Get-Process"
       ./pwsh -c $command
       Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
     }else{

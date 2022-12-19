@@ -33,7 +33,6 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   $script `
                   Exit"
     if($requiredPsVersion -eq "preview"){
-      $PSNativeCommandArgumentPassing = "Legacy"
       if (-not $IsWinEnv) { chmod 755 $DestinationPowerShell/pwsh }
       ./pwsh -Command $command
     }else{
