@@ -143,7 +143,8 @@ jobs:
 - template: util/smoke-test-steps.yml
   parameters:
     name: 'Linux_Preview_PS_SmokeTest'
-@@ -148,46 +60,6 @@ jobs:
+    agentPoolName: ${{ variables.linuxAgentPoolName }}
+    agentPoolVMImage: ${{ variables.linuxAgentPoolVMImage }}
     psVersion: ${{ parameters.preview_ps }}
     netCoreVersion: "7.0.x"
 
