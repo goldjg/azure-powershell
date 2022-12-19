@@ -42,6 +42,8 @@ parameters:
 
 variables:
   EnableTestCoverage: true
+  LiveTestLocation: $(Pipeline.Workspace)
+  TestCoverageLocation: $(Pipeline.Workspace)
 
 trigger:
 - none

@@ -29,14 +29,22 @@ param (
 
     [Parameter(Mandatory, Position = 7)]
     [ValidateNotNullOrEmpty()]
-    [string] $TestCoverageTableName
+    [string] $TestCoverageTableName,
+
+    [Parameter(Mandatory, Position = 8)]
+    [ValidateNotNullOrEmpty()]
+    [string] $LiveTestLocation,
+
+    [Parameter(Mandatory, Position = 9)]
+    [ValidateNotNullOrEmpty()]
+    [string] $TestCoverageLocation
 )
 
 Import-Module "./tools/TestFx/Utilities/KustoUtility.psd1" -Force
 
-$liveTestResultsDirectory = "./artifacts/LiveTestAnalysis/Raw"
-if (Test-Path -LiteralPath $liveTestResultsDirectory) {
-    $liveTestResults = Get-ChildItem -Path $liveTestResultsDirectory -Filter "*.csv" -File | Select-Object -ExpandProperty FullName
+$liveTestDirectory = Join-Path -Path $LiveTestLocation -ChildPath "LiveTestAnalysis" | Join-Path -ChildPath "Raw"
+if (Test-Path -LiteralPath $liveTestDirectory) {
+    $liveTestResults = Get-ChildItem -Path $liveTestDirectory -Filter "*.csv" -File | Select-Object -ExpandProperty FullName
     Import-KustoDataFromCsv `
         -ServicePrincipalTenantId $ServicePrincipalTenantId `
         -ServicePrincipalId $ServicePrincipalId `
@@ -51,9 +59,9 @@ else {
     Write-Warning "No live test data generated."
 }
 
-$testCoverageResultsDirectory = "./artifacts/TestCoverageAnalysis/Raw"
-if (Test-Path -LiteralPath $testCoverageResultsDirectory) {
-    $testCoverageResults = Get-ChildItem -Path $testCoverageResultsDirectory -Filter *.csv -File | Select-Object -ExpandProperty FullName
+$testCoverageDirectory = Join-Path -Path $TestCoverageLocation -ChildPath "TestCoverageAnalysis" | Join-Path -ChildPath "Raw"
+if (Test-Path -LiteralPath $testCoverageDirectory) {
+    $testCoverageResults = Get-ChildItem -Path $testCoverageDirectory -Filter "*.csv" -File | Select-Object -ExpandProperty FullName
     Import-KustoDataFromCsv `
         -ServicePrincipalTenantId $ServicePrincipalTenantId `
         -ServicePrincipalId $ServicePrincipalId `

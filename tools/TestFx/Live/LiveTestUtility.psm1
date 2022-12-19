@@ -26,7 +26,11 @@ param (
 
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
-    [string] $PSVersion
+    [string] $PSVersion,
+
+    [Parameter()]
+    [ValidateScript({ Test-Path -LiteralPath $_ -PathType Container })]
+    [string] $LiveTestLocation
 )
 
 New-Variable -Name ResourceGroupPrefix -Value "azpsliverg" -Scope Script -Option Constant
@@ -39,10 +43,8 @@ New-Variable -Name ScenarioMaxRetryCount -Value 5 -Scope Script -Option Constant
 New-Variable -Name ScenarioMaxDelay -Value 60 -Scope Script -Option Constant
 New-Variable -Name ScenarioDelay -Value 5 -Scope Script -Option Constant
 
-New-Variable -Name RepoRootDirectory -Value ($PSScriptRoot | Split-Path | Split-Path | Split-Path) -Scope Script -Option Constant
-New-Variable -Name ArtifactsDirectory -Value (Join-Path -Path $script:RepoRootDirectory -ChildPath "artifacts") -Scope Script -Option Constant
-New-Variable -Name LiveTestRootDirectory -Value (Join-Path -Path $script:ArtifactsDirectory -ChildPath "LiveTestAnalysis") -Scope Script -Option Constant
-New-Variable -Name LiveTestRawDirectory -Value (Join-Path -Path $script:LiveTestRootDirectory -ChildPath "Raw") -Scope Script -Option Constant
+New-Variable -Name LiveTestAnalysisDirectory -Value (Join-Path -Path $LiveTestLocation -ChildPath "LiveTestAnalysis") -Scope Script -Option Constant
+New-Variable -Name LiveTestRawDirectory -Value (Join-Path -Path $script:LiveTestAnalysisDirectory -ChildPath "Raw") -Scope Script -Option Constant
 New-Variable -Name LiveTestRawCsvFile -Value (Join-Path -Path $script:LiveTestRawDirectory -ChildPath "Az.$ModuleName.csv") -Scope Script -Option Constant
 
 function InitializeLiveTestModule {
@@ -53,8 +55,8 @@ function InitializeLiveTestModule {
         [string] $ModuleName
     )
 
-    if (!(Test-Path -LiteralPath $script:LiveTestRootDirectory -PathType Container)) {
-        New-Item -Path $script:LiveTestRootDirectory -ItemType Directory
+    if (!(Test-Path -LiteralPath $script:LiveTestAnalysisDirectory -PathType Container)) {
+        New-Item -Path $script:LiveTestAnalysisDirectory -ItemType Directory
         New-Item -Path $script:LiveTestRawDirectory -ItemType Directory
     }
 
@@ -321,7 +323,7 @@ function ConvertToLiveTestJsonErrors {
         $errorsObj | Add-Member -NotePropertyName "Retry$($n)Exception" -NotePropertyValue $Errors[$n]
     }
 
-    ConvertTo-Json $errorsObj -Compress
+    (ConvertTo-Json $errorsObj -Compress) -replace "\\u0027", "'"
 }
 
 InitializeLiveTestModule -ModuleName $ModuleName

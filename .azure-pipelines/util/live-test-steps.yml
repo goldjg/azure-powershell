@@ -84,7 +84,7 @@ jobs:
       pwsh: true
       targetType: filePath
       filePath: ./tools/TestFx/Live/InvokeLiveTestCITask.ps1
-      arguments: -UseWindowsPowerShell ('${{ parameters.psVersion }}' -eq '5.1') -ScriptFile './tools/TestFx/Live/InvokeLiveTestScenarios.ps1 $(Build.BuildId) ${{ parameters.vmImage }} ${{ parameters.psVersion }}'
+      arguments: -UseWindowsPowerShell ('${{ parameters.psVersion }}' -eq '5.1') -ScriptFile './tools/TestFx/Live/InvokeLiveTestScenarios.ps1 $(Build.BuildId) ${{ parameters.vmImage }} ${{ parameters.psVersion }} $(Build.SourcesDirectory) $(LiveTestLocation)'
       failOnStderr: true
 
   - task: PowerShell@2
@@ -93,7 +93,7 @@ jobs:
       pwsh: true
       targetType: filePath
       filePath: ./tools/TestFx/Live/SaveLiveTestResult.ps1
-      arguments: $(KustoServicePrincipalTenantId) $(KustoServicePrincipalId) $(KustoServicePrincipalSecret) $(KustoClusterName) $(KustoClusterRegion) $(LiveTestDatabaseName) $(LiveTestTableName) $(TestCoverageTableName)
+      arguments: $(KustoServicePrincipalTenantId) $(KustoServicePrincipalId) $(KustoServicePrincipalSecret) $(KustoClusterName) $(KustoClusterRegion) $(LiveTestDatabaseName) $(LiveTestTableName) $(TestCoverageTableName) $(LiveTestLocation) $(TestCoverageLocation)
 
   - task: PublishPipelineArtifact@1
     displayName: Publish live test results to pipeline artifact

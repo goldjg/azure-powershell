@@ -13,7 +13,6 @@
 
 function InitializeKustoPackages {
     [CmdletBinding()]
-    [OutputType([void])]
     param ()
 
     $kustoPackagesDirectoryName = "KustoPackages"
@@ -51,7 +50,6 @@ function InitializeKustoPackages {
 
 function Import-KustoDataFromCsv {
     [CmdletBinding()]
-    [OutputType([void])]
     param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
