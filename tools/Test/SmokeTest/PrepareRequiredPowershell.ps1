@@ -147,7 +147,7 @@ function Install-PowerShell {
 
 # Remove Az.* modules
 . "$PSScriptRoot/Common.ps1"
-# Remove-AzModules
+Remove-AzModules
 
 # If all images update AzureRM to Az, below codes should be deleted.
 # Remove AzureRM.* modules
