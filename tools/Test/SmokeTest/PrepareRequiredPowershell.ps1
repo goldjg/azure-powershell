@@ -91,9 +91,6 @@ function Install-Preview-PowerShell {
   }else{
     tar zxf $packagePath -C $Destination
   }
-
-  # $null = New-Item -Path (Split-Path -Path $Destination -Parent) -ItemType Directory -ErrorAction SilentlyContinue
-  ls $Destination
 }
 
 function Install-PowerShell {

@@ -33,7 +33,7 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   $script `
                   Exit"
     if($requiredPsVersion -eq "preview"){
-      $Current = Get-Location
+      $PSNativeCommandArgumentPassing = "Legacy"
       Write-Host "Destination of Powershell: $DestinationPowerShell, Current: $Current"
       ./pwsh -Command $command
     }else{
