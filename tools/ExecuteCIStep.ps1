@@ -138,18 +138,20 @@ If ($Build)
             {
                 $ModuleBuildInfoList += @{
                     Module = "Az.$ModuleName";
-                    Status = "Success";
+                    Status = "Succeeded";
                     Content = "";
                 }
             }
             Else
             {
                 $Content = "|Type|Code|Position|Detail|`n|---|---|---|---|`n"
+                $ErrorCount = 0
                 ForEach ($BuildResult In $BuildResultOfModule)
                 {
                     If ($BuildResult.Type -Eq "Error")
                     {
                         $ErrorTypeEmoji = "❌"
+                        $ErrorCount += 1
                     }
                     ElseIf ($BuildResult.Type -Eq "Warning")
                     {
@@ -157,9 +159,17 @@ If ($Build)
                     }
                     $Content += "|$ErrorTypeEmoji|$($BuildResult.Code)|$($BuildResult.Position)|$($BuildResult.Detail)|`n"
                 }
+                If ($ErrorCount -Eq 0)
+                {
+                    $Status = "Warning"
+                }
+                Else
+                {
+                    $Status = "Failed"
+                }
                 $ModuleBuildInfoList += @{
                     Module = "Az.$ModuleName";
-                    Status = "Failed";
+                    Status = $Status;
                     Content = $Content;
                 }
             }
@@ -167,16 +177,6 @@ If ($Build)
         $BuildDetail = @{
             Platform = $Platform;
             Modules = $ModuleBuildInfoList;
-        }
-        If ($BuildResultArray.Length -Ne 0)
-        {
-            $BuildDetail.Status = "Failed"
-            $DependencyStepStatus = "Canceled"
-        }
-        Else
-        {
-            $BuildDetail.Status = "Success"
-            $DependencyStepStatus = "Running"
         }
         $Template.Build.Details += $BuildDetail
 
@@ -194,7 +194,6 @@ If ($Build)
                 }
             }
             $Detail = @{
-                Status = $DependencyStepStatus;
                 Modules = $ModuleInfoList;
             }
             $Template.$DependencyStep.Details += $Detail
