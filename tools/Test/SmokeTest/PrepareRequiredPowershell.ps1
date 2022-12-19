@@ -129,7 +129,7 @@ function Install-PowerShell {
     $command = "Install-Module -Repository PSGallery -Name PowerShellGet -Scope CurrentUser -AllowClobber -Force `
     Exit"
     if('preview' -eq $requiredPsVersion){
-      if (-not $IsWinEnv) { chmod 755 /pwsh }
+      if (-not $IsWinEnv) { chmod 755 $Destination/pwsh }
       $PSNativeCommandArgumentPassing = "Legacy"
       ./pwsh -c "Get-Process"
       ./pwsh -c $command

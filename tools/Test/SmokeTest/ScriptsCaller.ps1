@@ -34,7 +34,7 @@ if($requiredPsVersion -eq $windowsPowershellVersion){
                   Exit"
     if($requiredPsVersion -eq "preview"){
       $PSNativeCommandArgumentPassing = "Legacy"
-      if (-not $IsWinEnv) { chmod 755 $Destination/pwsh }
+      if (-not $IsWinEnv) { chmod 755 $DestinationPowerShell/pwsh }
       ./pwsh -Command $command
     }else{
       dotnet tool run pwsh -c $command
