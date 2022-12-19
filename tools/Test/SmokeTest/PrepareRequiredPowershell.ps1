@@ -83,9 +83,7 @@ function Install-Preview-PowerShell {
   $null = New-Item -ItemType Directory -Path $contentPath -ErrorAction SilentlyContinue
 
   if ($IsWinEnv){
-    Write-Host "Start expanding Win. $packagePath to $contentPath"
     Expand-ArchiveInternal -Path $packagePath -DestinationPath $contentPath
-    Write-Host "End unzip."
     $contentPathContext = $contentPath + "\*"
     Move-Item -Path $contentPathContext -Destination $Destination -Force
   }else{
@@ -132,6 +130,7 @@ function Install-PowerShell {
     Exit"
     if('preview' -eq $requiredPsVersion){
       $PSNativeCommandArgumentPassing = "Legacy"
+      ./pwsh -c "Get-Process"
       ./pwsh -c $command
       Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
     }else{
