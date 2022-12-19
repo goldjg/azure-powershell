@@ -134,7 +134,7 @@ function Install-PowerShell {
     $command = "Install-Module -Repository PSGallery -Name PowerShellGet -Scope CurrentUser -AllowClobber -Force `
     Exit"
     if('preview' -eq $requiredPsVersion){
-      Write-Host "Current Location: $Current"
+      $PSNativeCommandArgumentPassing = "Legacy"
       ./pwsh -c $command
       Remove-Item -Path $TempDir -Recurse -Force -ErrorAction SilentlyContinue
     }else{
